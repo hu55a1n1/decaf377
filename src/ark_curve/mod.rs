@@ -7,7 +7,9 @@ mod elligator;
 mod encoding;
 mod invsqrt;
 mod ops;
+
 pub mod rand;
+
 pub mod serialize;
 
 pub use constants::ZETA;

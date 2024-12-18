@@ -1,4 +1,6 @@
 use cfg_if::cfg_if;
+
+#[cfg(feature = "rand")]
 use rand_core::CryptoRngCore;
 
 use crate::EncodingError;
@@ -134,6 +136,7 @@ impl Fp {
     }
 
     /// Sample a random field element uniformly.
+    #[cfg(feature = "rand")]
     pub fn rand<R: CryptoRngCore>(rng: &mut R) -> Self {
         // Sample wide, reduce
         let bytes = {

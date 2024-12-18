@@ -71,6 +71,8 @@ mod tests {
     use ark_r1cs_std::prelude::AllocVar;
     use ark_relations::r1cs::ConstraintSynthesizer;
     use ark_snark::SNARK;
+
+    #[cfg(feature = "rand")]
     use rand_core::OsRng;
 
     use super::*;
