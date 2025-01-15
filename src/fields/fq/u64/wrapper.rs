@@ -1,9 +1,14 @@
+use alloc::vec::Vec;
+
+use ark_crypto_primitives::sponge::Absorb;
 use ark_ed_on_bls12_377::Fq as ArkworksFq;
-use ark_ff::{biginteger::BigInt, Field, PrimeField};
+use ark_ff::{biginteger::BigInt, BigInteger, Field, Fp, FpConfig, PrimeField};
 use ark_serialize::CanonicalSerialize;
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq};
 
 use super::super::{N_64, N_8};
+
+extern crate alloc;
 
 const N: usize = N_64;
 
@@ -154,5 +159,36 @@ impl ConstantTimeEq for Fq {
             is_equal &= self_limbs[i] == other_limbs[i];
         }
         Choice::from(is_equal as u8)
+    }
+}
+
+pub(crate) fn field_cast<'a, F1: PrimeField, F2: PrimeField>(
+    x: &[F1],
+    dest: &'a mut Vec<F2>,
+) -> Option<&'a mut Vec<F2>> {
+    if F1::characteristic() != F2::characteristic() {
+        // "Trying to absorb non-native field elements."
+        None
+    } else {
+        x.iter().for_each(|item| {
+            let bytes = item.into_bigint().to_bytes_le();
+            dest.push(F2::from_le_bytes_mod_order(&bytes))
+        });
+        Some(dest)
+    }
+}
+
+impl Absorb for Fq {
+    fn to_sponge_bytes(&self, dest: &mut Vec<u8>) {
+        self.serialize_compressed(dest).unwrap()
+    }
+    fn to_sponge_field_elements<F: PrimeField>(&self, dest: &mut Vec<F>) {
+        let _ = field_cast(&[*self], dest);
+    }
+    fn batch_to_sponge_field_elements<F: PrimeField>(batch: &[Self], dest: &mut Vec<F>)
+    where
+        Self: Sized,
+    {
+        field_cast(batch, dest).unwrap();
     }
 }
