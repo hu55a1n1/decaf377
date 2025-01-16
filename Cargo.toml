@@ -39,7 +39,7 @@ once_cell = { version = "1.8", optional = true, default-features = false }
 # a default feature of std - without the ark-std std feature, decaf377 doesn't
 # compile
 [features]
-default = ["arkworks"]
+default = ["arkworks", "rand"]
 alloc = ["once_cell/alloc", "zeroize/alloc"]
 std = [
     "alloc",
